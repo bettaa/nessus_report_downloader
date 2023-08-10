@@ -38,6 +38,13 @@ requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.
 
 SLEEP_TIME=1.0
 
+# Define the filter parameters for HTML reports with specific conditions
+filter_params = {
+    "filter.0.quality": "gt",
+    "filter.0.filter": "cvss_base_score",
+    "filter.0.value": "7"
+}
+
 # Send HTTP GET request
 def sendGetRequest(url, headers):
     try:
@@ -208,8 +215,12 @@ def getFormatAndChapterList(nessus_format_list, chapter_list, db_pass):
 
 def downloadNessusReport(base_url, token, scan_id_list, json_user_data):
     for scan_id in scan_id_list:
-
         printMessage("Format: {0} | Chapter: {1}".format(json_user_data["format"], json_user_data["chapters"]))
+        
+        # Apply filter_params for HTML reports
+        if json_user_data["format"] == "html":
+            json_user_data.update(filter_params)
+
         printMessage("Initiating download request for scan id: " + str(scan_id), 1)
 
         token_header={'X-Cookie': 'token=' + token['token']}
